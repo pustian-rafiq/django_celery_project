@@ -1,0 +1,7 @@
+celery
+django
+django-celery-beat
+redis
+requests
+pandas
+django-celery-results
