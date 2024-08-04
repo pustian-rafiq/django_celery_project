@@ -43,3 +43,36 @@ def generate_invoice():
 
     df = pd.DataFrame(data)
     print(df)
+    
+@shared_task
+def fetch_and_process_sales_order():
+    # Fetch sales order CSV from API
+    response = requests.get('https://api.example.com/sales_order')
+    sales_order_csv = response.text
+
+    # Create payload for invoice API
+    sales_order_df = pd.read_csv(StringIO(sales_order_csv))
+    payload = sales_order_df.to_dict(orient='records')
+
+    # Call invoice API
+    invoice_response = requests.post('https://api.example.com/invoice', json=payload)
+    invoice_data = invoice_response.json()
+
+    # Create invoice CSV
+    invoice_df = pd.DataFrame(invoice_data)
+    invoice_csv = invoice_df.to_csv(index=False)
+
+    # Upload invoice CSV to SFTP
+    sftp_host = 'sftp.example.com'
+    sftp_port = 22
+    sftp_username = 'username'
+    sftp_password = 'password'
+    sftp_path = '/path/to/upload/invoice.csv'
+
+    transport = paramiko.Transport((sftp_host, sftp_port))
+    transport.connect(username=sftp_username, password=sftp_password)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+    with sftp.file(sftp_path, 'w') as f:
+        f.write(invoice_csv)
+    sftp.close()
+    transport.close()
