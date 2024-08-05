@@ -1,4 +1,5 @@
 import json
+import datetime
 
 def prepare_invoice_data_for_csv(sales_order,invoice,line,line_index):
     """
@@ -52,4 +53,30 @@ def prepare_invoice_data_for_csv(sales_order,invoice,line,line_index):
         'Item Allowance Percent1':  '',
         'Item Allowance Amount1':  '',
     }
+    return data_dict
+
+def prepare_order_status_for_csv(order_status,line,line_index):
+    data_dict = {
+        'Status': order_status["FulFilmentStatus"],
+        'Reference #': '',
+        'Status Report Date': datetime.datetime.now().strftime ("%Y%m%d"),
+        'Order/Item Code': order_status["Order"]["SaleOrderNumber"],
+        'Purpose': '',
+        'Total':  line['Total'],
+        'PO #':  '',
+        'PO Date': '',
+        'Vendor Order #': '',
+        'Item Sequence #': line_index + 1,
+        'UPC #': line['SKU'],
+        'Buyer Part #': '',
+        'Vendor Item #': '',
+        "Manufacturer's Part #": '',
+        'Quantity':  line['Quantity'],
+        'UOM':  '',
+        'Price': line['Price'],
+        # 'Status': '',
+        'Expected Ship Date': '',
+        'Store #': '',
+        'DC #': '',
+        }
     return data_dict
