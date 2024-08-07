@@ -82,3 +82,48 @@ def create_order_status_csv(request):
     #create csv file
     invoice_csv = df.to_csv('870.csv',index=False)
     return JsonResponse(order_stat_list, safe=False)
+
+def get_850_csv(request):
+     #open json file
+    with open('850.json') as response:
+        po_data = json.load(response)
+    
+    payload = []
+    data_dic = {
+            "SaleID": "",
+            "Memo": "",
+            "Status": "",
+            "AutoPickPackShipMode": "",
+            "Lines": [],
+            "AdditionalCharges": [],
+            "TotalBeforeTax": 0,
+            "Tax": 0,
+            "Total": 0
+        }
+    for data in po_data:
+        payloadd_item_index = []
+        po_number = data["Purchase Order Number"]
+        if len(payload) > 0:
+            for index, item in enumerate(payload):
+                if item["Purchase Order Number"] == po_number:
+                    payload_item_index = index
+                else:
+                     item = {
+                        "ProductID": "",
+                        "SKU": data["Buyer Part #"],
+                        "Name": data["Description"],
+                        "Quantity": data["Quantity"],
+                        "Price": data["Unit Price"],
+                        "Discount": 0,
+                        "Tax": 0,
+                        "AverageCost": 0,
+                        "TaxRule": "",
+                        "Comment": data["Note"],
+                        "DropShip": False,
+                        "BackorderQuantity": 0,
+                        "Total": 0
+                    }  
+
+        data_dic["Lines"].append(item)
+        payload.append(data_dic)
+    return JsonResponse(po_data, safe=False)
